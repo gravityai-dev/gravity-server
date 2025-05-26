@@ -18,8 +18,7 @@ import {
   ChatState,
   GravityMessage,
   SYSTEM_CHANNEL,
-  AI_RESULT_CHANNEL,
-  EVENT_CHANNEL_PREFIX
+  AI_RESULT_CHANNEL
 } from "../shared/types";
 
 // Channel prefix for conversations
@@ -90,7 +89,7 @@ export class Publisher {
   }
 
   async publishEvent(eventType: string, payload: any): Promise<void> {
-    await this.redis.publish(`${EVENT_CHANNEL_PREFIX}${eventType}`, JSON.stringify(payload));
+    await this.redis.publish(eventType, JSON.stringify(payload));
   }
 
   async publishMessageChunk(conversationId: string, text: string, base?: Partial<BaseMessage>): Promise<void> {
