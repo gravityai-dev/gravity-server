@@ -5,15 +5,14 @@
 import Redis from "ioredis";
 import { RedisOptions, getOptionsFromCredentials } from "../RedisManager";
 import { 
-  BaseMessage,
-  MessageChunk,
-  Text,
-  ProgressUpdate,
-  JsonData,
-  ActionSuggestion,
-  Metadata,
-  MdxComponent,
-  ImageResponse,
+  BaseMessage, 
+  Text, 
+  JsonData, 
+  ActionSuggestion, 
+  MessageChunk, 
+  ProgressUpdate, 
+  Metadata, 
+  ImageResponse, 
   ToolOutput,
   ChatState,
   GravityMessage,
@@ -145,15 +144,6 @@ export class Publisher {
       message
     };
     await this.publish(conversationId, msg);
-  }
-
-  async publishMdxComponent(conversationId: string, code: string, base?: Partial<BaseMessage>): Promise<void> {
-    const message: MdxComponent = {
-      ...this.createBaseMessage(base || {}),
-      __typename: 'MdxComponent',
-      code
-    };
-    await this.publish(conversationId, message);
   }
 
   async publishImageResponse(conversationId: string, url: string, alt?: string, base?: Partial<BaseMessage>): Promise<void> {

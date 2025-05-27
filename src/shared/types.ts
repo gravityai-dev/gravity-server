@@ -59,11 +59,6 @@ export interface Metadata extends BaseMessage {
   message: string;
 }
 
-export interface MdxComponent extends BaseMessage {
-  __typename: 'MdxComponent';
-  code: string;
-}
-
 export interface ImageResponse extends BaseMessage {
   __typename: 'ImageResponse';
   url: string;
@@ -78,15 +73,14 @@ export interface ToolOutput extends BaseMessage {
 
 // Union type
 export type GravityMessage = 
-  | MessageChunk 
   | Text 
-  | ProgressUpdate 
   | JsonData 
-  | ActionSuggestion 
-  | Metadata 
-  | MdxComponent 
   | ImageResponse 
-  | ToolOutput;
+  | ToolOutput 
+  | ActionSuggestion 
+  | MessageChunk 
+  | ProgressUpdate 
+  | Metadata;
 
 // Server-side message format (includes both type and __typename)
 export interface ServerMessage extends BaseMessage {
@@ -122,7 +116,6 @@ export const NODE_TYPE = {
 export enum MessageType {
   TEXT = 'text',
   JSON_DATA = 'json_data',
-  MDX_COMPONENT = 'mdx_component',
   IMAGE_RESPONSE = 'image_response',
   TOOL_OUTPUT = 'tool_output',
   ACTION_SUGGESTION = 'action_suggestion',
@@ -135,7 +128,6 @@ export enum MessageType {
 export const TYPE_TO_TYPENAME: Record<MessageType, string> = {
   [MessageType.TEXT]: 'Text',
   [MessageType.JSON_DATA]: 'JsonData',
-  [MessageType.MDX_COMPONENT]: 'MdxComponent',
   [MessageType.IMAGE_RESPONSE]: 'ImageResponse',
   [MessageType.TOOL_OUTPUT]: 'ToolOutput',
   [MessageType.ACTION_SUGGESTION]: 'ActionSuggestion',
@@ -215,14 +207,6 @@ export function createMetadata(base: BaseMessage, message: string): Metadata {
     ...base,
     __typename: 'Metadata',
     message
-  };
-}
-
-export function createMdxComponent(base: BaseMessage, code: string): MdxComponent {
-  return {
-    ...base,
-    __typename: 'MdxComponent',
-    code
   };
 }
 
