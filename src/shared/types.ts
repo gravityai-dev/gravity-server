@@ -71,6 +71,15 @@ export interface ToolOutput extends BaseMessage {
   result: any;
 }
 
+export interface AudioChunk extends BaseMessage {
+  __typename: 'AudioChunk';
+  audioData: string;     // Base64 encoded audio data
+  format: string;        // Audio format (mp3, wav, etc)
+  duration?: number;     // Duration in seconds
+  textReference: string; // The text this audio represents
+  sourceType: string;    // "MessageChunk" or "ProgressUpdate"
+}
+
 // Union type
 export type GravityMessage = 
   | Text 
@@ -80,7 +89,8 @@ export type GravityMessage =
   | ActionSuggestion 
   | MessageChunk 
   | ProgressUpdate 
-  | Metadata;
+  | Metadata
+  | AudioChunk;
 
 // Server-side message format (includes both type and __typename)
 export interface ServerMessage extends BaseMessage {
@@ -121,7 +131,8 @@ export enum MessageType {
   ACTION_SUGGESTION = 'action_suggestion',
   MESSAGE_CHUNK = 'message_chunk',
   PROGRESS_UPDATE = 'progress_update',
-  METADATA = 'metadata'
+  METADATA = 'metadata',
+  AUDIO_CHUNK = 'audio_chunk'
 }
 
 // Mapping from MessageType to GraphQL __typename
@@ -133,7 +144,8 @@ export const TYPE_TO_TYPENAME: Record<MessageType, string> = {
   [MessageType.ACTION_SUGGESTION]: 'ActionSuggestion',
   [MessageType.MESSAGE_CHUNK]: 'MessageChunk',
   [MessageType.PROGRESS_UPDATE]: 'ProgressUpdate',
-  [MessageType.METADATA]: 'Metadata'
+  [MessageType.METADATA]: 'Metadata',
+  [MessageType.AUDIO_CHUNK]: 'AudioChunk'
 };
 
 // Helper functions for creating messages
@@ -225,5 +237,24 @@ export function createToolOutput(base: BaseMessage, tool: string, result: Record
     __typename: 'ToolOutput',
     tool,
     result
+  };
+}
+
+export function createAudioChunk(
+  base: BaseMessage, 
+  audioData: string, 
+  format: string, 
+  textReference: string,
+  sourceType: string,
+  duration?: number
+): AudioChunk {
+  return {
+    ...base,
+    __typename: 'AudioChunk',
+    audioData,
+    format,
+    duration,
+    textReference,
+    sourceType
   };
 }

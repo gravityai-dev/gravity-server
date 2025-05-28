@@ -14,6 +14,7 @@ import {
   Metadata, 
   ImageResponse, 
   ToolOutput,
+  AudioChunk,
   ChatState,
   GravityMessage,
   SYSTEM_CHANNEL,
@@ -162,6 +163,27 @@ export class Publisher {
       __typename: 'ToolOutput',
       tool,
       result
+    };
+    await this.publish(conversationId, message);
+  }
+
+  async publishAudioChunk(
+    conversationId: string, 
+    audioData: string, 
+    format: string, 
+    textReference: string,
+    sourceType: string,
+    duration?: number,
+    base?: Partial<BaseMessage>
+  ): Promise<void> {
+    const message: AudioChunk = {
+      ...this.createBaseMessage(base || {}),
+      __typename: 'AudioChunk',
+      audioData,
+      format,
+      duration,
+      textReference,
+      sourceType
     };
     await this.publish(conversationId, message);
   }
