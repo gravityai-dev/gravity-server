@@ -25,22 +25,36 @@ export interface BaseMessage {
   timestamp: string | number; // Allow both string and number
   state?: ChatState;
   type?: MessageType;
+  metadata?: Record<string, any>; // Optional metadata for carrying additional data
 }
 
 // Message types with __typename for GraphQL
 export interface MessageChunk extends BaseMessage {
   __typename: 'MessageChunk';
   text: string;
+  voiceConfig?: {
+    enabled: true;
+    textField: 'text';
+  };
 }
 
 export interface Text extends BaseMessage {
   __typename: 'Text';
   text: string;
+  voiceConfig?: {
+    enabled: true;
+    textField: 'text';
+  };
 }
 
 export interface ProgressUpdate extends BaseMessage {
   __typename: 'ProgressUpdate';
   message: string;
+  progress?: number;
+  voiceConfig?: {
+    enabled: true;
+    textField: 'message';
+  };
 }
 
 export interface JsonData extends BaseMessage {
