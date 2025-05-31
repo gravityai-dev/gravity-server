@@ -4,21 +4,22 @@
 
 import Redis from "ioredis";
 import { RedisOptions, getOptionsFromCredentials } from "../RedisManager";
-import { 
-  BaseMessage, 
-  Text, 
-  JsonData, 
-  ActionSuggestion, 
-  MessageChunk, 
-  ProgressUpdate, 
-  Metadata, 
-  ImageResponse, 
+import {
+  BaseMessage,
+  Text,
+  JsonData,
+  ActionSuggestion,
+  MessageChunk,
+  ProgressUpdate,
+  Metadata,
+  ImageResponse,
   ToolOutput,
   AudioChunk,
   ChatState,
   GravityMessage,
   SYSTEM_CHANNEL,
-  AI_RESULT_CHANNEL
+  NodeExecutionEvent,
+  MessageType,
 } from "../shared/types";
 
 // Channel prefix for conversations
@@ -44,11 +45,11 @@ export class Publisher {
       maxRetriesPerRequest: 3,
       enableOfflineQueue: true,
     });
-    
-    this.redis.on('error', (err: Error) => {
+
+    this.redis.on("error", (err: Error) => {
       console.error(`[Publisher] Redis error for ${providerId}: ${err.message}`);
     });
-    
+
     this.providerId = providerId;
   }
 
@@ -67,7 +68,7 @@ export class Publisher {
 
   private createBaseMessage(partial: Partial<BaseMessage>): BaseMessage {
     if (!partial.chatId || !partial.conversationId || !partial.userId) {
-      throw new Error('chatId, conversationId, and userId are required');
+      throw new Error("chatId, conversationId, and userId are required");
     }
     return {
       chatId: partial.chatId,
@@ -75,7 +76,8 @@ export class Publisher {
       userId: partial.userId,
       providerId: partial.providerId || this.providerId,
       timestamp: partial.timestamp || new Date().toISOString(),
-      state: partial.state || ChatState.ACTIVE
+      state: partial.state || ChatState.ACTIVE,
+      type: partial.type || MessageType.TEXT,
     };
   }
 
@@ -92,11 +94,16 @@ export class Publisher {
     await this.redis.publish(eventType, JSON.stringify(payload));
   }
 
+  async publishNodeExecutionEvent(executionId: string, event: NodeExecutionEvent): Promise<void> {
+    const channel = `workflow:execution:${executionId}`;
+    await this.redis.publish(channel, JSON.stringify(event));
+  }
+
   async publishMessageChunk(conversationId: string, text: string, base?: Partial<BaseMessage>): Promise<void> {
     const message: MessageChunk = {
       ...this.createBaseMessage(base || {}),
-      __typename: 'MessageChunk',
-      text
+      __typename: "MessageChunk",
+      text,
     };
     await this.publish(conversationId, message);
   }
@@ -104,8 +111,8 @@ export class Publisher {
   async publishText(conversationId: string, text: string, base?: Partial<BaseMessage>): Promise<void> {
     const message: Text = {
       ...this.createBaseMessage(base || {}),
-      __typename: 'Text',
-      text
+      __typename: "Text",
+      text,
     };
     await this.publish(conversationId, message);
   }
@@ -113,8 +120,8 @@ export class Publisher {
   async publishProgressUpdate(conversationId: string, message: string, base?: Partial<BaseMessage>): Promise<void> {
     const msg: ProgressUpdate = {
       ...this.createBaseMessage(base || {}),
-      __typename: 'ProgressUpdate',
-      message
+      __typename: "ProgressUpdate",
+      message,
     };
     await this.publish(conversationId, msg);
   }
@@ -122,18 +129,23 @@ export class Publisher {
   async publishJsonData(conversationId: string, data: any, base?: Partial<BaseMessage>): Promise<void> {
     const message: JsonData = {
       ...this.createBaseMessage(base || {}),
-      __typename: 'JsonData',
-      data
+      __typename: "JsonData",
+      data,
     };
     await this.publish(conversationId, message);
   }
 
-  async publishActionSuggestion(conversationId: string, actionType: string, payload: any, base?: Partial<BaseMessage>): Promise<void> {
+  async publishActionSuggestion(
+    conversationId: string,
+    actionType: string,
+    payload: any,
+    base?: Partial<BaseMessage>
+  ): Promise<void> {
     const message: ActionSuggestion = {
       ...this.createBaseMessage(base || {}),
-      __typename: 'ActionSuggestion',
+      __typename: "ActionSuggestion",
       actionType,
-      payload
+      payload,
     };
     await this.publish(conversationId, message);
   }
@@ -141,36 +153,46 @@ export class Publisher {
   async publishMetadata(conversationId: string, message: string, base?: Partial<BaseMessage>): Promise<void> {
     const msg: Metadata = {
       ...this.createBaseMessage(base || {}),
-      __typename: 'Metadata',
-      message
+      __typename: "Metadata",
+      message,
     };
     await this.publish(conversationId, msg);
   }
 
-  async publishImageResponse(conversationId: string, url: string, alt?: string, base?: Partial<BaseMessage>): Promise<void> {
+  async publishImageResponse(
+    conversationId: string,
+    url: string,
+    alt?: string,
+    base?: Partial<BaseMessage>
+  ): Promise<void> {
     const message: ImageResponse = {
       ...this.createBaseMessage(base || {}),
-      __typename: 'ImageResponse',
+      __typename: "ImageResponse",
       url,
-      alt
+      alt,
     };
     await this.publish(conversationId, message);
   }
 
-  async publishToolOutput(conversationId: string, tool: string, result: any, base?: Partial<BaseMessage>): Promise<void> {
+  async publishToolOutput(
+    conversationId: string,
+    tool: string,
+    result: any,
+    base?: Partial<BaseMessage>
+  ): Promise<void> {
     const message: ToolOutput = {
       ...this.createBaseMessage(base || {}),
-      __typename: 'ToolOutput',
+      __typename: "ToolOutput",
       tool,
-      result
+      result,
     };
     await this.publish(conversationId, message);
   }
 
   async publishAudioChunk(
-    conversationId: string, 
-    audioData: string, 
-    format: string, 
+    conversationId: string,
+    audioData: string,
+    format: string,
     textReference: string,
     sourceType: string,
     duration?: number,
@@ -178,12 +200,12 @@ export class Publisher {
   ): Promise<void> {
     const message: AudioChunk = {
       ...this.createBaseMessage(base || {}),
-      __typename: 'AudioChunk',
+      __typename: "AudioChunk",
       audioData,
       format,
       duration,
       textReference,
-      sourceType
+      sourceType,
     };
     await this.publish(conversationId, message);
   }
@@ -193,9 +215,9 @@ export class Publisher {
     const message = {
       ...this.createBaseMessage({
         ...base,
-        state: ChatState.COMPLETE
+        state: ChatState.COMPLETE,
       }),
-      type: 'session_complete'
+      type: "session_complete",
     };
     await this.redis.publish(channel, JSON.stringify(message));
   }

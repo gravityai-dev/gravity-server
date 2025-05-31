@@ -21,10 +21,10 @@ export interface BaseMessage {
   chatId: string;
   conversationId: string;
   userId: string;
-  providerId?: string;
+  providerId: string;
   timestamp: string | number; // Allow both string and number
-  state?: ChatState;
-  type?: MessageType;
+  state: ChatState;
+  type: MessageType;
   metadata?: Record<string, any>; // Optional metadata for carrying additional data
 }
 
@@ -172,6 +172,7 @@ export function createBaseMessage(overrides: Partial<BaseMessage> = {}): BaseMes
     providerId: overrides.providerId || "",
     timestamp: overrides.timestamp || new Date().toISOString(),
     state: overrides.state || ChatState.IDLE,
+    type: overrides.type || MessageType.TEXT,
   };
 }
 
@@ -275,5 +276,53 @@ export function createAudioChunk(
     duration,
     textReference,
     sourceType,
+  };
+}
+
+// ===== Workflow Execution Event Types =====
+
+// Node execution states
+export enum NodeExecutionState {
+  STARTED = "STARTED",
+  COMPLETED = "COMPLETED",
+  ERROR = "ERROR",
+}
+
+// Single node execution event that handles all states
+export interface NodeExecutionEvent {
+  __typename: "NodeExecutionEvent";
+  executionId: string;
+  workflowId: string;
+  nodeId: string;
+  nodeType: string;
+  state: NodeExecutionState;
+  timestamp: string;
+  duration?: number; // milliseconds (only for COMPLETED/ERROR states)
+  outputs?: any; // only for COMPLETED state
+  error?: string; // only for ERROR state
+}
+
+// Helper function for creating node execution events
+export function createNodeExecutionEvent(
+  executionId: string,
+  workflowId: string,
+  nodeId: string,
+  nodeType: string,
+  state: NodeExecutionState,
+  options?: {
+    duration?: number;
+    outputs?: any;
+    error?: string;
+  }
+): NodeExecutionEvent {
+  return {
+    __typename: "NodeExecutionEvent",
+    executionId,
+    workflowId,
+    nodeId,
+    nodeType,
+    state,
+    timestamp: new Date().toISOString(),
+    ...options,
   };
 }
