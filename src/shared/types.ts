@@ -121,6 +121,7 @@ export const SYSTEM_CHANNEL = "gravity:system";
 export const AI_RESULT_CHANNEL = "gravity:output";
 export const QUERY_MESSAGE_CHANNEL = "gravity:query";
 export const INTERNAL_REQUEST_CHANNEL = "gravity:internal"; // For internal service-to-service requests
+export const WORKFLOW_EXECUTION_CHANNEL = "workflow:execution"; // For workflow execution events
 
 // Timeout constants
 export const TIMEOUTS = {
