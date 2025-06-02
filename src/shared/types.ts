@@ -363,6 +363,7 @@ export interface NodeOutput {
   description?: string;
 }
 
+// Node definition without executor
 export interface NodeDefinition {
   name: string;
   description: string;
@@ -371,7 +372,6 @@ export interface NodeDefinition {
   icon?: string;
   inputs: NodeInput[];
   outputs: NodeOutput[];
-  executor: NodeExecutor;
 }
 
 export type NodeExecutor = (inputs: any, context: NodeExecutionContext) => Promise<any>;
