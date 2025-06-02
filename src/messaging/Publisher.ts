@@ -18,6 +18,7 @@ import {
   ChatState,
   GravityMessage,
   SYSTEM_CHANNEL,
+  WORKFLOW_EXECUTION_CHANNEL,
   NodeExecutionEvent,
   MessageType,
 } from "../shared/types";
@@ -95,7 +96,7 @@ export class Publisher {
   }
 
   async publishNodeExecutionEvent(executionId: string, event: NodeExecutionEvent): Promise<void> {
-    const channel = `workflow:execution:${executionId}`;
+    const channel = `${WORKFLOW_EXECUTION_CHANNEL}:${executionId}`;
     await this.redis.publish(channel, JSON.stringify(event));
   }
 

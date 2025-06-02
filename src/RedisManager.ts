@@ -1,6 +1,6 @@
 /**
  * Redis Connection Manager
- * 
+ *
  * Centralizes Redis connection management to avoid redundant connections.
  * Maintains separate pools for standard and pub/sub connections.
  */
@@ -53,18 +53,18 @@ function createConfig(options: RedisOptions): any {
  */
 export function getStandardConnection(options: RedisOptions): Redis {
   const key = getConnectionKey(options);
-  
+
   if (!standardConnections.has(key)) {
     const config = createConfig(options);
     const client = new Redis(config);
-    
-    client.on('error', (err) => {
+
+    client.on("error", (err) => {
       console.error(`[Redis] Error on ${options.host}:${options.port}: ${err.message}`);
     });
-    
+
     standardConnections.set(key, client);
   }
-  
+
   return standardConnections.get(key)!;
 }
 
@@ -74,18 +74,18 @@ export function getStandardConnection(options: RedisOptions): Redis {
  */
 export function getPubSubConnection(options: RedisOptions): Redis {
   const key = getConnectionKey(options);
-  
+
   if (!pubsubConnections.has(key)) {
     const config = createConfig(options);
     const client = new Redis(config);
-    
-    client.on('error', (err) => {
+
+    client.on("error", (err) => {
       console.error(`[Redis] PubSub Error on ${options.host}:${options.port}: ${err.message}`);
     });
-    
+
     pubsubConnections.set(key, client);
   }
-  
+
   return pubsubConnections.get(key)!;
 }
 
@@ -97,7 +97,7 @@ export function getOptionsFromCredentials(serverUrl: string, apiKey: string): Re
   let host = "localhost";
   try {
     const url = new URL(serverUrl);
-    
+
     // Redis is always at the same host as the server
     host = url.hostname;
   } catch (error) {
@@ -117,7 +117,7 @@ export function getOptionsFromCredentials(serverUrl: string, apiKey: string): Re
  */
 export async function closeAllConnections(): Promise<void> {
   const closePromises: Promise<string>[] = [];
-  
+
   standardConnections.forEach((client, key) => {
     closePromises.push(
       client.quit().then(() => {
@@ -126,7 +126,7 @@ export async function closeAllConnections(): Promise<void> {
       })
     );
   });
-  
+
   pubsubConnections.forEach((client, key) => {
     closePromises.push(
       client.quit().then(() => {
@@ -135,9 +135,9 @@ export async function closeAllConnections(): Promise<void> {
       })
     );
   });
-  
+
   await Promise.all(closePromises);
 }
 
-// Re-export Redis class for convenience 
+// Re-export Redis class for convenience
 export { Redis };

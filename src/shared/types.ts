@@ -17,6 +17,16 @@ export enum ChatState {
 }
 
 // Base message interface
+export interface InputMessage {
+  chatId: string;
+  conversationId: string;
+  userId: string;
+  providerId: string;
+  timestamp: string | number; // Allow both string and number
+  message: string;
+}
+
+// Base message interface
 export interface BaseMessage {
   chatId: string;
   conversationId: string;
