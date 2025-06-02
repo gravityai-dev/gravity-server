@@ -387,6 +387,21 @@ export interface NodeExecutionContext {
   };
 }
 
+// Node lifecycle hooks
+export interface NodeLifecycle {
+  onAdd?: (context: { nodeId: string; workflowId: string; config?: Record<string, any> }) => Promise<void>;
+  onRemove?: (context: { nodeId: string; workflowId: string; config?: Record<string, any> }) => Promise<void>;
+  onBeforeExecute?: (context: { nodeId: string; workflowId: string; config?: Record<string, any> }) => Promise<void>;
+  onAfterExecute?: (context: { nodeId: string; workflowId: string; config?: Record<string, any> }) => Promise<void>;
+}
+
+// Enhanced node with lifecycle support
+export interface WorkflowNode {
+  definition: NodeDefinition;
+  executor: NodeExecutor;
+  lifecycle?: NodeLifecycle;
+}
+
 // ===== BullMQ Queue Types =====
 
 export interface WorkflowQueueConfig {
@@ -439,4 +454,27 @@ export interface NodeTrace {
   inputs?: any;
   outputs?: any;
   error?: string;
+}
+
+// Node credential requirement definition
+export interface NodeCredential {
+  name: string;
+  required: boolean;
+  displayName?: string;
+  description?: string;
+}
+
+// Enhanced node definition that includes full configuration schema
+export interface EnhancedNodeDefinition extends NodeDefinition {
+  type: string;
+  logoUrl?: string;
+  configSchema?: any;
+  credentials?: NodeCredential[];
+  capabilities?: {
+    isTrigger?: boolean;
+    requiresConnection?: boolean;
+    parallelizable?: boolean;
+  };
+  testData?: any;
+  lifecycle?: NodeLifecycle;
 }
