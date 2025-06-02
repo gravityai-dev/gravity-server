@@ -337,3 +337,106 @@ export function createNodeExecutionEvent(
     ...options,
   };
 }
+
+// ===== Workflow Node Definition Types =====
+
+export enum NodeInputType {
+  STRING = 'string',
+  NUMBER = 'number',
+  BOOLEAN = 'boolean',
+  OBJECT = 'object',
+  ARRAY = 'array',
+  ANY = 'any'
+}
+
+export interface NodeInput {
+  name: string;
+  type: NodeInputType;
+  description?: string;
+  required?: boolean;
+  default?: any;
+}
+
+export interface NodeOutput {
+  name: string;
+  type: NodeInputType;
+  description?: string;
+}
+
+export interface NodeDefinition {
+  name: string;
+  description: string;
+  category: string;
+  color: string;
+  icon?: string;
+  inputs: NodeInput[];
+  outputs: NodeOutput[];
+  executor: NodeExecutor;
+}
+
+export type NodeExecutor = (inputs: any, context: NodeExecutionContext) => Promise<any>;
+
+export interface NodeExecutionContext {
+  nodeId: string;
+  executionId: string;
+  credentials?: any;
+  logger?: {
+    info: (message: string) => void;
+    error: (message: string) => void;
+    debug: (message: string) => void;
+  };
+}
+
+// ===== BullMQ Queue Types =====
+
+export interface WorkflowQueueConfig {
+  redis: {
+    host: string;
+    port: number;
+  };
+  defaultConcurrency?: number;
+  defaultRetries?: number;
+}
+
+export interface NodeJobData {
+  workflowId: string;
+  executionId: string;
+  nodeId: string;
+  nodeType: string;
+  config?: any;
+  dependencies?: string[];
+  initialInputs?: any;
+}
+
+export interface WorkflowJobData {
+  workflowId: string;
+  executionId: string;
+  flowJobId: string;
+}
+
+export interface QueueExecutionStatus {
+  executionId: string;
+  status: 'pending' | 'running' | 'completed' | 'failed';
+  startedAt?: string;
+  completedAt?: string;
+  outputs: Record<string, any>;
+  error?: string;
+  // BullMQ specific fields
+  jobId?: string;
+  progress?: number;
+  attempts?: number;
+}
+
+export interface NodeTrace {
+  traceId: string;
+  executionId: string;
+  nodeId: string;
+  nodeType: string;
+  startTime: number;
+  endTime?: number;
+  duration?: number;
+  status: "running" | "completed" | "failed";
+  inputs?: any;
+  outputs?: any;
+  error?: string;
+}
