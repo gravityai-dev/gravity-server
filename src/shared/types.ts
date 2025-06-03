@@ -403,10 +403,6 @@ export interface NodeExecutionContext {
   workflow?: {
     id: string;
     runId: string;
-    chatId?: string;
-    conversationId?: string;
-    userId?: string;
-    providerId?: string;
     variables?: Record<string, any>;
   };
   logger?: {
