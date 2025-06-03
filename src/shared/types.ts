@@ -105,6 +105,12 @@ export interface AudioChunk extends BaseMessage {
   sourceType: string; // "MessageChunk" or "ProgressUpdate"
 }
 
+export interface State extends BaseMessage {
+  __typename: "State";
+  stateData: Record<string, any>;
+  variables?: Record<string, any>;
+}
+
 // Union type
 export type GravityMessage =
   | Text
@@ -115,7 +121,8 @@ export type GravityMessage =
   | MessageChunk
   | ProgressUpdate
   | Metadata
-  | AudioChunk;
+  | AudioChunk
+  | State;
 
 // Server-side message format (includes both type and __typename)
 export interface ServerMessage extends BaseMessage {
@@ -159,6 +166,7 @@ export enum MessageType {
   PROGRESS_UPDATE = "progress_update",
   METADATA = "metadata",
   AUDIO_CHUNK = "audio_chunk",
+  STATE = "state",
 }
 
 // Mapping from MessageType to GraphQL __typename
@@ -172,6 +180,7 @@ export const TYPE_TO_TYPENAME: Record<MessageType, string> = {
   [MessageType.PROGRESS_UPDATE]: "ProgressUpdate",
   [MessageType.METADATA]: "Metadata",
   [MessageType.AUDIO_CHUNK]: "AudioChunk",
+  [MessageType.STATE]: "State",
 };
 
 // Helper functions for creating messages
@@ -290,6 +299,15 @@ export function createAudioChunk(
   };
 }
 
+export function createState(base: BaseMessage, state: Record<string, any>, variables?: Record<string, any>): State {
+  return {
+    ...base,
+    __typename: "State",
+    stateData: state,
+    variables,
+  };
+}
+
 // ===== Workflow Execution Event Types =====
 
 // Node execution states
@@ -379,7 +397,18 @@ export type NodeExecutor = (inputs: any, context: NodeExecutionContext) => Promi
 export interface NodeExecutionContext {
   nodeId: string;
   executionId: string;
+  config?: Record<string, any>;
+  inputs?: Record<string, any>;
   credentials?: any;
+  workflow?: {
+    id: string;
+    runId: string;
+    chatId?: string;
+    conversationId?: string;
+    userId?: string;
+    providerId?: string;
+    variables?: Record<string, any>;
+  };
   logger?: {
     info: (message: string) => void;
     error: (message: string) => void;
