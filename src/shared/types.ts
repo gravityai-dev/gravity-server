@@ -433,6 +433,7 @@ export interface WorkflowQueueConfig {
   redis: {
     host: string;
     port: number;
+    password?: string;
   };
   defaultConcurrency?: number;
   defaultRetries?: number;
