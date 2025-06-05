@@ -20,6 +20,7 @@ import {
   SYSTEM_CHANNEL,
   WORKFLOW_EXECUTION_CHANNEL,
   NodeExecutionEvent,
+  NodeExecutionState,
   MessageType,
 } from "../shared/types";
 
@@ -98,6 +99,63 @@ export class Publisher {
   async publishNodeExecutionEvent(executionId: string, event: NodeExecutionEvent): Promise<void> {
     const channel = `${WORKFLOW_EXECUTION_CHANNEL}:${executionId}`;
     await this.redis.publish(channel, JSON.stringify(event));
+  }
+
+  async publishNodeStarted(data: {
+    executionId: string;
+    workflowId: string;
+    nodeId: string;
+    nodeType: string;
+  }): Promise<void> {
+    const event: NodeExecutionEvent = {
+      __typename: "NodeExecutionEvent",
+      state: NodeExecutionState.STARTED,
+      timestamp: new Date().toISOString(),
+      ...data
+    };
+    await this.publishNodeExecutionEvent(data.executionId, event);
+  }
+
+  async publishNodeCompleted(data: {
+    executionId: string;
+    workflowId: string;
+    nodeId: string;
+    nodeType: string;
+    output: any;
+    duration: number;
+  }): Promise<void> {
+    const event: NodeExecutionEvent = {
+      __typename: "NodeExecutionEvent",
+      state: NodeExecutionState.COMPLETED,
+      timestamp: new Date().toISOString(),
+      executionId: data.executionId,
+      workflowId: data.workflowId,
+      nodeId: data.nodeId,
+      nodeType: data.nodeType,
+      outputs: data.output,
+      duration: data.duration
+    };
+    await this.publishNodeExecutionEvent(data.executionId, event);
+  }
+
+  async publishNodeFailed(data: {
+    executionId: string;
+    workflowId: string;
+    nodeId: string;
+    nodeType: string;
+    error: string;
+  }): Promise<void> {
+    const event: NodeExecutionEvent = {
+      __typename: "NodeExecutionEvent",
+      state: NodeExecutionState.ERROR,
+      timestamp: new Date().toISOString(),
+      executionId: data.executionId,
+      workflowId: data.workflowId,
+      nodeId: data.nodeId,
+      nodeType: data.nodeType,
+      error: data.error
+    };
+    await this.publishNodeExecutionEvent(data.executionId, event);
   }
 
   async publishMessageChunk(conversationId: string, text: string, base?: Partial<BaseMessage>): Promise<void> {

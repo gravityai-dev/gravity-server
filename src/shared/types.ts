@@ -434,9 +434,13 @@ export interface WorkflowQueueConfig {
     host: string;
     port: number;
     password?: string;
+    maxRetriesPerRequest?: number;
+    enableReadyCheck?: boolean;
+    enableOfflineQueue?: boolean;
   };
   defaultConcurrency?: number;
   defaultRetries?: number;
+  deploymentSize?: 'small' | 'medium' | 'large' | 'xlarge';
 }
 
 export interface NodeJobData {
@@ -490,6 +494,15 @@ export interface NodeCredential {
   description?: string;
 }
 
+// Node concurrency levels
+export enum NodeConcurrency {
+  SEQUENTIAL = 1,      // One at a time (for rate-limited APIs)
+  LOW = 5,            // Low concurrency (for AI/LLM nodes)
+  MEDIUM = 10,        // Medium concurrency (for database operations)
+  HIGH = 20,          // High concurrency (for simple transformations)
+  UNLIMITED = -1      // No limit (use with caution)
+}
+
 // Enhanced node definition that includes full configuration schema
 export interface EnhancedNodeDefinition extends NodeDefinition {
   type: string;
@@ -500,6 +513,7 @@ export interface EnhancedNodeDefinition extends NodeDefinition {
     isTrigger?: boolean;
     requiresConnection?: boolean;
     parallelizable?: boolean;
+    concurrency?: NodeConcurrency; // Max concurrent executions for this node type
   };
   testData?: any;
   lifecycle?: NodeLifecycle;
