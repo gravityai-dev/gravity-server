@@ -39,6 +39,79 @@ await publisher.publish('gravity:query', {
 });
 ```
 
+### High-Performance Singleton Publishers (Recommended)
+
+```typescript
+import { 
+  getProgressPublisher, 
+  getMessageChunkPublisher, 
+  getBatchPublisher,
+  getTextPublisher,
+  getSystemPublisher
+} from '@gravityai-dev/gravity-server';
+
+// Initialize once - reuses connections and instances forever
+const progressPublisher = getProgressPublisher(
+  'https://api.gravityai.dev',
+  'your-api-key',
+  'my-service'
+);
+
+// Subsequent calls are instant - no new objects created
+const sameInstance = getProgressPublisher(); // Ultra fast!
+
+// Publish progress update
+await progressPublisher.publishProgressUpdate(
+  "Processing data...", 
+  75, 
+  { chatId: 'chat-123', conversationId: 'conv-456', userId: 'user-789' }
+);
+
+// Stream text chunks
+const messageChunkPublisher = getMessageChunkPublisher();
+await messageChunkPublisher.publishMessageChunk(
+  "Hello world!",
+  { chatId: 'chat-123', conversationId: 'conv-456', userId: 'user-789' }
+);
+
+// Send final text message
+const textPublisher = getTextPublisher();
+await textPublisher.publishText(
+  "Task completed successfully!",
+  { chatId: 'chat-123', conversationId: 'conv-456', userId: 'user-789' }
+);
+
+// System notifications
+const systemPublisher = getSystemPublisher();
+await systemPublisher.publishSystemMessage(
+  "Service started",
+  "info",
+  { chatId: 'chat-123', conversationId: 'conv-456', userId: 'user-789' }
+);
+```
+
+### Maximum Performance Batch Operations
+
+```typescript
+import { getBatchPublisher } from '@gravityai-dev/gravity-server';
+
+const batchPublisher = getBatchPublisher(serverUrl, apiKey, 'my-service');
+
+// Send multiple messages in single Redis operation
+await batchPublisher.publishBatch([
+  { message: progressUpdate1, channel: 'gravity:output' },
+  { message: messageChunk1, channel: 'gravity:output' },
+  { message: textMessage1, channel: 'gravity:output' }
+]);
+
+// Stream multiple chunks ultra-fast
+await batchPublisher.publishStreamingBatch(
+  ['Hello', ' world', '!'], 
+  baseMessage, 
+  'gravity:output'
+);
+```
+
 ### Event Subscription
 
 ```typescript

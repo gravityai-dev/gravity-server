@@ -3,9 +3,39 @@
  */
 
 // Export all shared types
-export * from "./shared/types";
+export * from "./types";
 
 // Export server components
 export * from "./RedisManager";
 export { Publisher } from "./messaging/Publisher";
 export { EventBus, type EventHandler } from "./messaging/SimpleEventBus";
+
+// Export publisher classes and types
+export {
+  BasePublisher,
+  ProgressPublisher,
+  MessageChunkPublisher,
+  TextPublisher,
+  SystemPublisher,
+  StatePublisher,
+  BatchPublisher,
+} from "./messaging/publishers";
+
+// Export high-performance singleton getters
+export {
+  getProgressPublisher,
+  getMessageChunkPublisher,
+  getTextPublisher,
+  getSystemPublisher,
+  getStatePublisher,
+  getBatchPublisher,
+} from "./messaging/publishers";
+
+// Export publisher-specific types that don't conflict
+export type { PublishOptions, ProgressUpdate, MessageChunk, BatchMessage } from "./messaging/publishers";
+
+// Export messaging types
+export * from "./messaging/types";
+
+// Export input message types
+export type { InputMessage, TypedInputMessage } from "./messaging/inputs/input";

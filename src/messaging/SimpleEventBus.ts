@@ -5,7 +5,7 @@
 import { v4 as uuid } from "uuid";
 import Redis from "ioredis";
 import { RedisOptions, getOptionsFromCredentials, getPubSubConnection } from "../RedisManager";
-import { GravityMessage } from "../shared/types";
+import { GravityMessage } from "../types";
 import { Publisher } from "./Publisher";
 
 export type EventHandler<T = any> = (event: T) => void | Promise<void>;
