@@ -22,7 +22,8 @@ export type {
   ProgressUpdate,
   SystemMessage,
   State,
-  GravityMessage
+  GravityMessage,
+  Card
 } from "./messaging/types";
 
 // Import BaseMessage for ServerMessage interface
@@ -41,6 +42,7 @@ export enum MessageType {
   PROGRESS_UPDATE = "PROGRESS_UPDATE",
   MESSAGE_CHUNK = "MESSAGE_CHUNK",
   STATE = "STATE",
+  CARD = "CARD",
 }
 
 // Chat state enum
@@ -99,4 +101,5 @@ export const TYPE_TO_TYPENAME: Record<MessageType, string> = {
   [MessageType.STATE]: "State",
   [MessageType.SYSTEM_MESSAGE]: "SystemMessage",
   [MessageType.PROGRESS_UPDATE]: "ProgressUpdate",
+  [MessageType.CARD]: "Card",
 };

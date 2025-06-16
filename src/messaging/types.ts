@@ -31,6 +31,7 @@ import type { MessageChunk } from "./publishers/messageChunk";
 import type { ProgressUpdate } from "./publishers/progressUpdate";
 import type { SystemMessage } from "./publishers/system";
 import type { StateMessage } from "./publishers/state";
+import type { Card } from "./publishers/cards";
 
 // Re-export message types
 export type {
@@ -45,6 +46,7 @@ export type {
   ProgressUpdate,
   SystemMessage,
   StateMessage,
+  Card,
 };
 
 // State type - doesn't have a dedicated publisher yet
@@ -67,4 +69,5 @@ export type GravityMessage =
   | StateMessage
   | SystemMessage
   | ProgressUpdate
-  | MessageChunk;
+  | MessageChunk
+  | Card;

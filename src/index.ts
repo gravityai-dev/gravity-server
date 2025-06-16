@@ -19,6 +19,7 @@ export {
   SystemPublisher,
   StatePublisher,
   BatchPublisher,
+  CardPublisher,
 } from "./messaging/publishers";
 
 // Export high-performance singleton getters
@@ -29,10 +30,17 @@ export {
   getSystemPublisher,
   getStatePublisher,
   getBatchPublisher,
+  getCardPublisher,
 } from "./messaging/publishers";
 
 // Export publisher-specific types that don't conflict
-export type { PublishOptions, ProgressUpdate, MessageChunk, BatchMessage } from "./messaging/publishers";
+export type { 
+  PublishOptions, 
+  ProgressUpdate, 
+  MessageChunk, 
+  BatchMessage, 
+  Card,
+} from "./messaging/publishers";
 
 // Export messaging types
 export * from "./messaging/types";
