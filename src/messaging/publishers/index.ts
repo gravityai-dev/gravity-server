@@ -35,6 +35,8 @@ export { AudioChunkPublisher } from "./audioChunk";
 export type { AudioChunk } from "./audioChunk";
 export { StatePublisher, getStatePublisher } from "./state";
 export type { StateMessage } from "./state";
+export { NodeExecutionPublisher, getNodeExecutionPublisher } from "./nodeExecution";
+export type { NodeExecution } from "./nodeExecution";
 export { SystemPublisher, getSystemPublisher } from "./system";
 export { CardPublisher, getCardPublisher } from "./cards";
 export type { Card } from "./cards";
