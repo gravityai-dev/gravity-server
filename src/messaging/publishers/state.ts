@@ -97,24 +97,35 @@ let statePublisherInstance: StatePublisher | null = null;
 
 /**
  * Get singleton StatePublisher instance
+ * Maximum performance - no new objects created after first call
  * 
- * @param serverUrl - Server URL (required on first call)
- * @param apiKey - API key (required on first call)
+ * @param host - Redis host (required on first call)
+ * @param port - Redis port (required on first call)
+ * @param password - Redis password (required on first call)
  * @param providerId - Provider ID (required on first call)
+ * @param username - Redis username (optional)
+ * @param db - Redis database number (optional)
  * @returns Singleton StatePublisher instance
  */
-export function getStatePublisher(serverUrl?: string, apiKey?: string, providerId?: string): StatePublisher {
+export function getStatePublisher(
+  host?: string, 
+  port?: number, 
+  password?: string, 
+  providerId?: string, 
+  username?: string, 
+  db?: number
+): StatePublisher {
   if (!statePublisherInstance) {
-    if (!serverUrl || !apiKey || !providerId) {
-      throw new Error('StatePublisher requires serverUrl, apiKey, and providerId on first call');
+    if (!host || !port || password === undefined || !providerId) {
+      throw new Error('StatePublisher requires host, port, password, and providerId on first call');
     }
     
-    const publisher = Publisher.fromCredentials(serverUrl, apiKey, providerId);
+    const publisher = Publisher.fromConfig(host, port, password, providerId, username, db);
     statePublisherInstance = new StatePublisher(
       publisher.getRedisConnection(),
       publisher.getProviderId()
     );
   }
-  
+
   return statePublisherInstance;
 }

@@ -88,18 +88,28 @@ let systemPublisherInstance: SystemPublisher | null = null;
  * Get singleton SystemPublisher instance
  * Maximum performance - no new objects created after first call
  * 
- * @param serverUrl - Server URL (required on first call)
- * @param apiKey - API key (required on first call) 
+ * @param host - Redis host (required on first call)
+ * @param port - Redis port (required on first call)
+ * @param password - Redis password (required on first call)
  * @param providerId - Provider ID (required on first call)
+ * @param username - Redis username (optional)
+ * @param db - Redis database number (optional)
  * @returns Singleton SystemPublisher instance
  */
-export function getSystemPublisher(serverUrl?: string, apiKey?: string, providerId?: string): SystemPublisher {
+export function getSystemPublisher(
+  host?: string, 
+  port?: number, 
+  password?: string, 
+  providerId?: string, 
+  username?: string, 
+  db?: number
+): SystemPublisher {
   if (!systemPublisherInstance) {
-    if (!serverUrl || !apiKey || !providerId) {
-      throw new Error('SystemPublisher requires serverUrl, apiKey, and providerId on first call');
+    if (!host || !port || password === undefined || !providerId) {
+      throw new Error('SystemPublisher requires host, port, password, and providerId on first call');
     }
     
-    const publisher = Publisher.fromCredentials(serverUrl, apiKey, providerId);
+    const publisher = Publisher.fromConfig(host, port, password, providerId, username, db);
     systemPublisherInstance = new SystemPublisher(
       publisher.getRedisConnection(),
       publisher.getProviderId()

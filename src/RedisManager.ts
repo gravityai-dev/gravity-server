@@ -52,20 +52,29 @@ function createConfig(options: RedisOptions): any {
  * Reuses existing connections when possible
  */
 export function getStandardConnection(options: RedisOptions): Redis {
-  const key = getConnectionKey(options);
-
-  if (!standardConnections.has(key)) {
-    const config = createConfig(options);
-    const client = new Redis(config);
-
-    client.on("error", (err) => {
-      console.error(`[Redis] Error on ${options.host}:${options.port}: ${err.message}`);
-    });
-
-    standardConnections.set(key, client);
+  // Create a unique key for the connection pool based on connection parameters
+  const connectionKey = `${options.host}:${options.port}:${options.db || 0}:${options.username || 'default'}`;
+  
+  if (standardConnections.has(connectionKey)) {
+    return standardConnections.get(connectionKey)!;
   }
 
-  return standardConnections.get(key)!;
+  // Create config object for ioredis
+  const config = {
+    host: options.host,
+    port: options.port,
+    username: options.username,
+    password: options.password,
+    db: options.db || 0,
+    retryStrategy: (times: number) => Math.min(times * 50, 2000),
+    maxRetriesPerRequest: 3,
+    enableOfflineQueue: true,
+  };
+
+  const client = new Redis(config);
+  standardConnections.set(connectionKey, client);
+  
+  return client;
 }
 
 /**
@@ -73,41 +82,46 @@ export function getStandardConnection(options: RedisOptions): Redis {
  * Always creates a new connection for pub/sub to avoid conflicts
  */
 export function getPubSubConnection(options: RedisOptions): Redis {
-  const key = getConnectionKey(options);
-
-  if (!pubsubConnections.has(key)) {
-    const config = createConfig(options);
-    const client = new Redis(config);
-
-    client.on("error", (err) => {
-      console.error(`[Redis] PubSub Error on ${options.host}:${options.port}: ${err.message}`);
-    });
-
-    pubsubConnections.set(key, client);
+  const connectionKey = `${options.host}:${options.port}:${options.db || 0}:${options.username || 'default'}`;
+  
+  if (pubsubConnections.has(connectionKey)) {
+    return pubsubConnections.get(connectionKey)!;
   }
 
-  return pubsubConnections.get(key)!;
+  const config = createConfig(options);
+  const client = new Redis(config);
+  pubsubConnections.set(connectionKey, client);
+  
+  return client;
 }
 
 /**
- * Parse connection details from a URL and API key
+ * Get Redis options from environment variables
  */
-export function getOptionsFromCredentials(serverUrl: string, apiKey: string): RedisOptions {
-  // Extract hostname from URL
-  let host = "localhost";
-  try {
-    const url = new URL(serverUrl);
+export function getRedisOptions(): RedisOptions {
+  return {
+    host: process.env.REDIS_HOST!,
+    port: parseInt(process.env.REDIS_PORT!, 10),
+    username: process.env.REDIS_USERNAME!,
+    password: process.env.REDIS_PASSWORD!,
+  };
+}
 
-    // Redis is always at the same host as the server
-    host = url.hostname;
-  } catch (error) {
-    console.warn(`[Redis] Invalid server URL: ${serverUrl}`);
-  }
-
+/**
+ * Create RedisOptions from server config values
+ * Preferred method for proper Redis configuration
+ */
+export function getOptionsFromConfig(
+  host: string,
+  port: number,
+  username?: string | null,
+  password?: string | null
+): RedisOptions {
   return {
     host,
-    port: 6379,
-    password: apiKey,
+    port,
+    username: username || undefined,
+    password: password || undefined,
   };
 }
 

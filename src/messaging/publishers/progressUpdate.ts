@@ -65,23 +65,33 @@ let progressPublisherInstance: ProgressPublisher | null = null;
  * Get singleton ProgressPublisher instance
  * Maximum performance - no new objects created after first call
  * 
- * @param serverUrl - Server URL (required on first call)
- * @param apiKey - API key (required on first call) 
+ * @param host - Redis host (required on first call)
+ * @param port - Redis port (required on first call)
+ * @param password - Redis password (required on first call)
  * @param providerId - Provider ID (required on first call)
+ * @param username - Redis username (optional)
+ * @param db - Redis database number (optional)
  * @returns Singleton ProgressPublisher instance
  */
-export function getProgressPublisher(serverUrl?: string, apiKey?: string, providerId?: string): ProgressPublisher {
+export function getProgressPublisher(
+  host?: string, 
+  port?: number, 
+  password?: string, 
+  providerId?: string, 
+  username?: string, 
+  db?: number
+): ProgressPublisher {
   if (!progressPublisherInstance) {
-    if (!serverUrl || !apiKey || !providerId) {
-      throw new Error('ProgressPublisher requires serverUrl, apiKey, and providerId on first call');
+    if (!host || !port || password === undefined || !providerId) {
+      throw new Error('ProgressPublisher requires host, port, password, and providerId on first call');
     }
     
-    const publisher = Publisher.fromCredentials(serverUrl, apiKey, providerId);
+    const publisher = Publisher.fromConfig(host, port, password, providerId, username, db);
     progressPublisherInstance = new ProgressPublisher(
       publisher.getRedisConnection(),
       publisher.getProviderId()
     );
   }
-  
+
   return progressPublisherInstance;
 }

@@ -75,23 +75,33 @@ let cardPublisherInstance: CardPublisher | null = null;
  * Get singleton CardPublisher instance
  * Maximum performance - no new objects created after first call
  * 
- * @param serverUrl - Server URL (required on first call)
- * @param apiKey - API key (required on first call) 
+ * @param host - Redis host (required on first call)
+ * @param port - Redis port (required on first call)
+ * @param password - Redis password (required on first call)
  * @param providerId - Provider ID (required on first call)
+ * @param username - Redis username (optional)
+ * @param db - Redis database number (optional)
  * @returns Singleton CardPublisher instance
  */
-export function getCardPublisher(serverUrl?: string, apiKey?: string, providerId?: string): CardPublisher {
+export function getCardPublisher(
+  host?: string, 
+  port?: number, 
+  password?: string, 
+  providerId?: string, 
+  username?: string, 
+  db?: number
+): CardPublisher {
   if (!cardPublisherInstance) {
-    if (!serverUrl || !apiKey || !providerId) {
-      throw new Error('CardPublisher requires serverUrl, apiKey, and providerId on first call');
+    if (!host || !port || password === undefined || !providerId) {
+      throw new Error('CardPublisher requires host, port, password, and providerId on first call');
     }
     
-    const publisher = Publisher.fromCredentials(serverUrl, apiKey, providerId);
+    const publisher = Publisher.fromConfig(host, port, password, providerId, username, db);
     cardPublisherInstance = new CardPublisher(
       publisher.getRedisConnection(),
       publisher.getProviderId()
     );
   }
-  
+
   return cardPublisherInstance;
 }

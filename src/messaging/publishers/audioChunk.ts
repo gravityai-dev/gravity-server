@@ -20,6 +20,28 @@ export interface AudioChunk extends BaseMessage {
 }
 
 /**
+ * Helper function to create an AudioChunk object without publishing it
+ */
+export function createAudioChunk(
+  base: BaseMessage,
+  audioData: string,
+  format: string,
+  textReference: string,
+  sourceType: string,
+  duration?: number
+): AudioChunk {
+  return {
+    ...base,
+    __typename: "AudioChunk",
+    audioData,
+    format,
+    textReference,
+    sourceType,
+    duration,
+  };
+}
+
+/**
  * AudioChunkPublisher - Handles audio chunk messages
  */
 export class AudioChunkPublisher extends BasePublisher {

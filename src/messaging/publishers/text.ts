@@ -49,23 +49,33 @@ let textPublisherInstance: TextPublisher | null = null;
  * Get singleton TextPublisher instance
  * Maximum performance - no new objects created after first call
  * 
- * @param serverUrl - Server URL (required on first call)
- * @param apiKey - API key (required on first call) 
+ * @param host - Redis host (required on first call)
+ * @param port - Redis port (required on first call)
+ * @param password - Redis password (required on first call)
  * @param providerId - Provider ID (required on first call)
+ * @param username - Redis username (optional)
+ * @param db - Redis database number (optional)
  * @returns Singleton TextPublisher instance
  */
-export function getTextPublisher(serverUrl?: string, apiKey?: string, providerId?: string): TextPublisher {
+export function getTextPublisher(
+  host?: string, 
+  port?: number, 
+  password?: string, 
+  providerId?: string, 
+  username?: string, 
+  db?: number
+): TextPublisher {
   if (!textPublisherInstance) {
-    if (!serverUrl || !apiKey || !providerId) {
-      throw new Error('TextPublisher requires serverUrl, apiKey, and providerId on first call');
+    if (!host || !port || password === undefined || !providerId) {
+      throw new Error('TextPublisher requires host, port, password, and providerId on first call');
     }
     
-    const publisher = Publisher.fromCredentials(serverUrl, apiKey, providerId);
+    const publisher = Publisher.fromConfig(host, port, password, providerId, username, db);
     textPublisherInstance = new TextPublisher(
       publisher.getRedisConnection(),
       publisher.getProviderId()
     );
   }
-  
+
   return textPublisherInstance;
 }

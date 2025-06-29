@@ -4,7 +4,7 @@
 
 import { v4 as uuid } from "uuid";
 import Redis from "ioredis";
-import { RedisOptions, getOptionsFromCredentials, getPubSubConnection } from "../RedisManager";
+import { RedisOptions, getPubSubConnection } from "../RedisManager";
 import { GravityMessage } from "../types";
 import { Publisher } from "./Publisher";
 
@@ -21,44 +21,19 @@ export class EventBus {
     this.setupSubscriber();
   }
 
-  static fromCredentials(serverUrl: string, apiKey: string, serviceId: string): EventBus {
-    const options = getOptionsFromCredentials(serverUrl, apiKey);
+  static fromRedisConfig(host: string, port: number, password: string | undefined, serviceId: string, username?: string, db?: number): EventBus {
+    const options = {
+      host,
+      port,
+      password,
+      username,
+      db: db || 0,
+    };
     return new EventBus(options, serviceId);
   }
 
-  static fromPublisher(publisher: Publisher): EventBus {
-    console.log(`[EventBus DEBUG] Creating EventBus from publisher...`);
-
-    // Extract providerId from the publisher
-    const serviceId = publisher.getProviderId();
-    console.log(`[EventBus DEBUG] Using serviceId: ${serviceId} from publisher`);
-
-    // IMPORTANT: Don't reuse the publisher's Redis connection
-    // This causes "Connection in subscriber mode" errors
-    // Instead, extract connection options and create new connections
-    const redisConnection = publisher.getRedisConnection();
-    console.log(`[EventBus DEBUG] Got Redis connection from publisher: ${redisConnection ? "success" : "failed"}`);
-
-    if (!redisConnection) {
-      throw new Error("Cannot create EventBus: Publisher does not expose Redis connection");
-    }
-
-    // Construct options from Redis connection
-    const options = {
-      host: redisConnection.options.host || "localhost",
-      port: redisConnection.options.port || 6379,
-      password: redisConnection.options.password || "",
-    };
-    console.log(
-      `[EventBus DEBUG] Created connection options for new EventBus: ${JSON.stringify({
-        host: options.host,
-        port: options.port,
-        passwordProvided: !!options.password,
-      })}`
-    );
-
-    console.log(`[EventBus DEBUG] Creating new EventBus with fresh connections...`);
-    return new EventBus(options, serviceId);
+  static fromCredentials(host: string, port: number, password: string | undefined, serviceId: string): EventBus {
+    return EventBus.fromRedisConfig(host, port, password, serviceId);
   }
 
   private setupSubscriber(): void {

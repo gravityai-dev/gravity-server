@@ -7,17 +7,21 @@
  * Key features:
  * - Simple API for publishing to channels
  * - Automatic connection management
- * - Support for credentials-based initialization
+ * - Support for Redis credentials-based initialization
  *
  * Usage:
  * ```typescript
- * const publisher = Publisher.fromCredentials(serverUrl, apiKey, 'my-service');
+ * const publisher = Publisher.fromRedisCredentials({
+ *   host: 'localhost',
+ *   port: 6379,
+ *   password: 'your-password'
+ * }, 'my-service');
  * await publisher.publishEvent('channel', { data: 'hello' });
  * ```
  */
 
 import Redis from "ioredis";
-import { RedisOptions, getOptionsFromCredentials, getStandardConnection } from "../RedisManager";
+import { RedisOptions, getStandardConnection, getOptionsFromConfig } from "../RedisManager";
 import { SYSTEM_CHANNEL } from "../types";
 
 export class Publisher {
@@ -30,9 +34,21 @@ export class Publisher {
     this.providerId = providerId;
   }
 
-  static fromCredentials(serverUrl: string, apiKey: string, providerId: string): Publisher {
-    const options = getOptionsFromCredentials(serverUrl, apiKey);
-    return new Publisher(options, providerId);
+  static fromRedisCredentials(redisOptions: RedisOptions, providerId: string): Publisher {
+    return new Publisher(redisOptions, providerId);
+  }
+
+  static fromConfig(
+    host: string,
+    port: number,
+    password: string | undefined,
+    providerId: string,
+    username?: string,
+    db?: number
+  ): Publisher {
+    const redisOptions = getOptionsFromConfig(host, port, username, password);
+
+    return new Publisher(redisOptions, providerId);
   }
 
   getProviderId(): string {
