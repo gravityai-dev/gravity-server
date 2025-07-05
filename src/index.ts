@@ -20,6 +20,8 @@ export {
   StatePublisher,
   BatchPublisher,
   CardPublisher,
+  QuestionsPublisher,
+  NodeExecutionPublisher,
 } from "./messaging/publishers";
 
 // Export high-performance singleton getters
@@ -31,6 +33,8 @@ export {
   getStatePublisher,
   getBatchPublisher,
   getCardPublisher,
+  getQuestionsPublisher,
+  getNodeExecutionPublisher,
 } from "./messaging/publishers";
 
 // Export publisher-specific types that don't conflict
@@ -40,6 +44,7 @@ export type {
   MessageChunk, 
   BatchMessage, 
   Card,
+  Questions,
 } from "./messaging/publishers";
 
 // Export helper functions

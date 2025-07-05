@@ -38,6 +38,8 @@ export type { StateMessage } from "./state";
 export { SystemPublisher, getSystemPublisher } from "./system";
 export { CardPublisher, getCardPublisher } from "./cards";
 export type { Card } from "./cards";
+export { QuestionsPublisher, getQuestionsPublisher } from "./questions";
+export type { Questions } from "./questions";
 
 // Re-export commonly used types for convenience
 export type { PublishOptions } from "./base";
@@ -45,3 +47,7 @@ export type { PublishOptions } from "./base";
 // Export high-performance batch publisher
 export { BatchPublisher, getBatchPublisher } from "./batch";
 export type { BatchMessage } from "./batch";
+
+// Export node execution publisher
+export { NodeExecutionPublisher, getNodeExecutionPublisher } from "./nodeExecution";
+export type { NodeExecutionEvent } from "./nodeExecution";

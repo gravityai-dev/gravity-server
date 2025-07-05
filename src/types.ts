@@ -1,8 +1,8 @@
 /**
  * Shared Types
- * 
+ *
  * Core types shared between client and server
- * 
+ *
  * @module shared/types
  */
 
@@ -23,7 +23,8 @@ export type {
   SystemMessage,
   State,
   GravityMessage,
-  Card
+  Card,
+  Questions,
 } from "./messaging/types";
 
 // Import BaseMessage for ServerMessage interface
@@ -43,6 +44,8 @@ export enum MessageType {
   MESSAGE_CHUNK = "MESSAGE_CHUNK",
   STATE = "STATE",
   CARD = "CARD",
+  QUESTIONS = "QUESTIONS",
+  NODE_EXECUTION_EVENT = "NODE_EXECUTION_EVENT",
 }
 
 // Chat state enum
@@ -58,7 +61,7 @@ export enum ChatState {
 }
 
 // Server-side message format (includes both type and __typename)
-export interface ServerMessage extends Omit<BaseMessage, 'timestamp'> {
+export interface ServerMessage extends Omit<BaseMessage, "timestamp"> {
   id: string;
   providerId: string;
   timestamp: number; // Server uses number timestamps
@@ -72,22 +75,13 @@ export const AI_RESULT_CHANNEL = "gravity:output";
 export const QUERY_MESSAGE_CHANNEL = "gravity:query";
 export const INTERNAL_REQUEST_CHANNEL = "gravity:internal"; // For internal service-to-service requests
 export const WORKFLOW_EXECUTION_CHANNEL = "workflow:execution"; // For workflow execution events
-export const WORKFLOW_NODE_COMPLETION_CHANNEL = "workflow-node-completion"; // For individual node completion events with triggered signals
+// WORKFLOW_NODE_COMPLETION_CHANNEL removed - now using unified AI_RESULT_CHANNEL
 export const WORKFLOW_STATE_CHANNEL = "gravity:workflow:state"; // For workflow state debug updates
 
 // Timeout constants
 export const TIMEOUTS = {
   DEFAULT: 5000,
   REQUEST: 10000,
-} as const;
-
-// Node type identifiers
-export const NODE_TYPE = {
-  INPUT: "gravityInput",
-  UPDATE: "gravityUpdate",
-  OUTPUT: "gravityOutput",
-  CLAUDE: "gravityClaude",
-  EMBED: "gravityEmbed",
 } as const;
 
 // Mapping from MessageType to GraphQL __typename
@@ -104,4 +98,6 @@ export const TYPE_TO_TYPENAME: Record<MessageType, string> = {
   [MessageType.SYSTEM_MESSAGE]: "SystemMessage",
   [MessageType.PROGRESS_UPDATE]: "ProgressUpdate",
   [MessageType.CARD]: "Card",
+  [MessageType.QUESTIONS]: "Questions",
+  [MessageType.NODE_EXECUTION_EVENT]: "NodeExecutionEvent",
 };

@@ -10,8 +10,7 @@
 
 import Redis from "ioredis";
 import { v4 as uuid } from "uuid";
-import { BaseMessage } from "../types";
-import { GravityMessage, MessageType, AI_RESULT_CHANNEL } from "../../types";
+import { GravityMessage, MessageType, AI_RESULT_CHANNEL, SYSTEM_CHANNEL, BaseMessage } from "../../types";
 
 /**
  * Options for publishing messages
@@ -19,6 +18,7 @@ import { GravityMessage, MessageType, AI_RESULT_CHANNEL } from "../../types";
  * @interface PublishOptions
  * @property {string} [channel] - Optional Redis channel to publish to. If not provided,
  *                                the publisher will use a default channel based on context.
+ * @property {boolean} [useStream] - Whether to use Redis Streams for guaranteed delivery
  * 
  * @example
  * ```typescript
@@ -30,6 +30,7 @@ import { GravityMessage, MessageType, AI_RESULT_CHANNEL } from "../../types";
  */
 export interface PublishOptions {
   channel?: string;
+  useStream?: boolean;
 }
 
 /**
@@ -215,6 +216,56 @@ export abstract class BasePublisher {
     options?: PublishOptions
   ): Promise<void> {
     const channel = options?.channel || AI_RESULT_CHANNEL;
-    await this.redis.publish(channel, JSON.stringify(message));
+    
+    // Always use Redis Streams for reliability
+    await this.publishToStream(channel, message);
+  }
+
+  /**
+   * Publishes a message to Redis Streams for guaranteed delivery
+   * 
+   * @protected
+   * @param {string} channel - The channel name
+   * @param {GravityMessage} message - The message to publish
+   * @returns {Promise<string>} The stream entry ID
+   */
+  private async publishToStream(channel: string, message: any): Promise<string> {
+    // Use the unified workflow stream for all messages
+    const streamKey = "workflow:events:stream";
+    
+    try {
+      // Publish to Redis Stream
+      const entryId = await this.redis.xadd(
+        streamKey,
+        "*", // Auto-generate ID
+        "channel", channel,
+        "message", JSON.stringify(message),
+        "timestamp", Date.now().toString(),
+        "providerId", this.providerId
+      );
+      
+      if (!entryId) {
+        console.error(`[BasePublisher] Failed to add entry to stream ${streamKey} - no entry ID returned`);
+      }
+      
+      // Also publish to regular pub/sub for backward compatibility
+      // This ensures existing subscribers still receive messages
+      await this.redis.publish(channel, JSON.stringify(message));
+      
+      return entryId || '';
+    } catch (error) {
+      console.error(`[BasePublisher] Error publishing to stream ${streamKey}:`, error);
+      
+      // Fallback to pub/sub only
+      try {
+        await this.redis.publish(channel, JSON.stringify(message));
+        console.warn(`[BasePublisher] Fell back to pub/sub only for channel ${channel}`);
+      } catch (pubsubError) {
+        console.error(`[BasePublisher] Failed to publish to pub/sub as well:`, pubsubError);
+        throw pubsubError;
+      }
+      
+      return '';
+    }
   }
 }

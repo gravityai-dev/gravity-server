@@ -14,6 +14,7 @@ import { Publisher } from "../Publisher";
 export interface MessageChunk extends BaseMessage {
   __typename: "MessageChunk";
   text: string;
+  index?: number; // Sequence index for proper ordering
 }
 
 /**
@@ -25,19 +26,23 @@ export class MessageChunkPublisher extends BasePublisher {
    *
    * @param text - The text content of the chunk
    * @param baseMessage - Base message with required fields (chatId, conversationId, userId)
+   * @param index - Optional sequence index for ordering
    * @param options - Optional publishing options (e.g., custom channel)
    */
-  async publishMessageChunk(text: string, baseMessage: Partial<BaseMessage>, options?: PublishOptions): Promise<void> {
-    // Validate text is not null/empty since GraphQL schema requires non-nullable text
-    if (!text || text.trim() === "") {
-      console.warn("[MessageChunkPublisher] Skipping publish - text is null or empty:", { text, baseMessage });
-      return;
-    }
+  async publishMessageChunk(
+    text: string,
+    baseMessage: Partial<BaseMessage>,
+    index?: number,
+    options?: PublishOptions
+  ): Promise<void> {
+    // No text validation - allow all characters including spaces, newlines, and markdown formatting
+    // Only skip if text is null or undefined (TypeScript should prevent this anyway)
 
     const messageChunk: MessageChunk = {
       ...this.createBaseMessage(baseMessage),
       __typename: "MessageChunk",
       text,
+      index,
     };
 
     await this.publish(messageChunk, options);
