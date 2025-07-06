@@ -21,6 +21,7 @@ export {
   BatchPublisher,
   CardPublisher,
   QuestionsPublisher,
+  FormPublisher,
   NodeExecutionPublisher,
 } from "./messaging/publishers";
 
@@ -34,6 +35,7 @@ export {
   getBatchPublisher,
   getCardPublisher,
   getQuestionsPublisher,
+  getFormPublisher,
   getNodeExecutionPublisher,
 } from "./messaging/publishers";
 
@@ -45,6 +47,13 @@ export type {
   BatchMessage, 
   Card,
   Questions,
+  Form,
+  FormStructure,
+  FormStep,
+  FormInput,
+  FormInputType,
+  FormLanguage,
+  FormInputOption,
 } from "./messaging/publishers";
 
 // Export helper functions

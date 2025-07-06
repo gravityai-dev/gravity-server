@@ -40,6 +40,8 @@ export { CardPublisher, getCardPublisher } from "./cards";
 export type { Card } from "./cards";
 export { QuestionsPublisher, getQuestionsPublisher } from "./questions";
 export type { Questions } from "./questions";
+export { FormPublisher, getFormPublisher } from "./forms";
+export type { Form, FormStructure, FormStep, FormInput, FormInputType, FormLanguage, FormInputOption } from "./forms";
 
 // Re-export commonly used types for convenience
 export type { PublishOptions } from "./base";

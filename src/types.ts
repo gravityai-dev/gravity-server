@@ -25,6 +25,7 @@ export type {
   GravityMessage,
   Card,
   Questions,
+  Form,
 } from "./messaging/types";
 
 // Import BaseMessage for ServerMessage interface
@@ -45,6 +46,7 @@ export enum MessageType {
   STATE = "STATE",
   CARD = "CARD",
   QUESTIONS = "QUESTIONS",
+  FORM = "FORM",
   NODE_EXECUTION_EVENT = "NODE_EXECUTION_EVENT",
 }
 
@@ -99,5 +101,6 @@ export const TYPE_TO_TYPENAME: Record<MessageType, string> = {
   [MessageType.PROGRESS_UPDATE]: "ProgressUpdate",
   [MessageType.CARD]: "Card",
   [MessageType.QUESTIONS]: "Questions",
+  [MessageType.FORM]: "Form",
   [MessageType.NODE_EXECUTION_EVENT]: "NodeExecutionEvent",
 };

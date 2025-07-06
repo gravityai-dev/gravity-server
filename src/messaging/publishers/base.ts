@@ -234,11 +234,15 @@ export abstract class BasePublisher {
     const streamKey = "workflow:events:stream";
     
     try {
+      // Extract conversationId for efficient filtering
+      const conversationId = message.conversationId || "";
+      
       // Publish to Redis Stream
       const entryId = await this.redis.xadd(
         streamKey,
         "*", // Auto-generate ID
         "channel", channel,
+        "conversationId", conversationId, // Add for Redis Streams filtering
         "message", JSON.stringify(message),
         "timestamp", Date.now().toString(),
         "providerId", this.providerId
