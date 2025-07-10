@@ -13,7 +13,12 @@ import { Publisher } from "../Publisher";
  */
 export interface Text extends BaseMessage {
   __typename: "Text";
-  text: string;
+  component: {
+    type: "Text";
+    props: {
+      text: string;
+    };
+  };
 }
 
 /**
@@ -35,7 +40,12 @@ export class TextPublisher extends BasePublisher {
     const textMessage: Text = {
       ...this.createBaseMessage(baseMessage),
       __typename: "Text",
-      text,
+      component: {
+        type: "Text",
+        props: {
+          text,
+        },
+      },
     };
 
     await this.publish(textMessage, options);

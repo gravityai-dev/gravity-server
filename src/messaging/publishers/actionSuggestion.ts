@@ -6,14 +6,20 @@
 
 import { BaseMessage } from "../types";
 import { BasePublisher, PublishOptions } from "./base";
+import { Publisher } from "../Publisher";
 
 /**
  * Action suggestion message type
  */
 export interface ActionSuggestion extends BaseMessage {
   __typename: "ActionSuggestion";
-  actionType: string;
-  payload: any;
+  component: {
+    type: "ActionSuggestion";
+    props: {
+      actionType: string;
+      payload: any;
+    };
+  };
 }
 
 /**
@@ -37,10 +43,53 @@ export class ActionSuggestionPublisher extends BasePublisher {
     const suggestion: ActionSuggestion = {
       ...this.createBaseMessage(baseMessage),
       __typename: "ActionSuggestion",
-      actionType,
-      payload,
+      component: {
+        type: "ActionSuggestion",
+        props: {
+          actionType,
+          payload,
+        },
+      },
     };
 
-    await this.publish(suggestion, options);
+    await this.publish(suggestion as any, options);
   }
+}
+
+// Singleton instance for maximum performance
+let actionSuggestionPublisherInstance: ActionSuggestionPublisher | null = null;
+
+/**
+ * Get singleton ActionSuggestionPublisher instance
+ * Maximum performance - no new objects created after first call
+ * 
+ * @param host - Redis host (required on first call)
+ * @param port - Redis port (required on first call)
+ * @param password - Redis password (required on first call)
+ * @param providerId - Provider ID (required on first call)
+ * @param username - Redis username (optional)
+ * @param db - Redis database number (optional)
+ * @returns Singleton ActionSuggestionPublisher instance
+ */
+export function getActionSuggestionPublisher(
+  host?: string, 
+  port?: number, 
+  password?: string, 
+  providerId?: string, 
+  username?: string, 
+  db?: number
+): ActionSuggestionPublisher {
+  if (!actionSuggestionPublisherInstance) {
+    if (!host || !port || password === undefined || !providerId) {
+      throw new Error('ActionSuggestionPublisher requires host, port, password, and providerId on first call');
+    }
+    
+    const publisher = Publisher.fromConfig(host, port, password, providerId, username, db);
+    actionSuggestionPublisherInstance = new ActionSuggestionPublisher(
+      publisher.getRedisConnection(),
+      publisher.getProviderId()
+    );
+  }
+
+  return actionSuggestionPublisherInstance;
 }

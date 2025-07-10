@@ -6,13 +6,19 @@
 
 import { BaseMessage } from "../types";
 import { BasePublisher, PublishOptions } from "./base";
+import { Publisher } from "../Publisher";
 
 /**
  * JSON data message type
  */
 export interface JsonData extends BaseMessage {
   __typename: "JsonData";
-  data: any;
+  component: {
+    type: "JsonData";
+    props: {
+      data: any;
+    };
+  };
 }
 
 /**
@@ -34,9 +40,52 @@ export class JsonDataPublisher extends BasePublisher {
     const jsonMessage: JsonData = {
       ...this.createBaseMessage(baseMessage),
       __typename: "JsonData",
-      data,
+      component: {
+        type: "JsonData",
+        props: {
+          data,
+        },
+      },
     };
 
-    await this.publish(jsonMessage, options);
+    await this.publish(jsonMessage as any, options);
   }
+}
+
+// Singleton instance for maximum performance
+let jsonDataPublisherInstance: JsonDataPublisher | null = null;
+
+/**
+ * Get singleton JsonDataPublisher instance
+ * Maximum performance - no new objects created after first call
+ * 
+ * @param host - Redis host (required on first call)
+ * @param port - Redis port (required on first call)
+ * @param password - Redis password (required on first call)
+ * @param providerId - Provider ID (required on first call)
+ * @param username - Redis username (optional)
+ * @param db - Redis database number (optional)
+ * @returns Singleton JsonDataPublisher instance
+ */
+export function getJsonDataPublisher(
+  host?: string, 
+  port?: number, 
+  password?: string, 
+  providerId?: string, 
+  username?: string, 
+  db?: number
+): JsonDataPublisher {
+  if (!jsonDataPublisherInstance) {
+    if (!host || !port || password === undefined || !providerId) {
+      throw new Error('JsonDataPublisher requires host, port, password, and providerId on first call');
+    }
+    
+    const publisher = Publisher.fromConfig(host, port, password, providerId, username, db);
+    jsonDataPublisherInstance = new JsonDataPublisher(
+      publisher.getRedisConnection(),
+      publisher.getProviderId()
+    );
+  }
+
+  return jsonDataPublisherInstance;
 }

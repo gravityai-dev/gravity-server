@@ -30,6 +30,7 @@ export interface NodeExecutionEvent extends BaseMessage {
       triggeredSignals: Array<{
         targetNode: string;
         signal: string;
+        inputs?: any;
       }>;
     };
   };
@@ -63,7 +64,7 @@ export class NodeExecutionPublisher extends BasePublisher {
     result: any,
     error: string | undefined,
     duration: number | null,
-    triggeredSignals: Array<{ targetNode: string; signal: string }>,
+    triggeredSignals: Array<{ targetNode: string; signal: string; inputs?: any }>,
     baseMessage: Partial<BaseMessage>,
     options?: PublishOptions
   ): Promise<void> {
@@ -100,7 +101,8 @@ export class NodeExecutionPublisher extends BasePublisher {
       triggeredSignals: triggeredSignals.map(signal => ({
         __typename: "TriggeredSignal",
         targetNode: signal.targetNode,
-        signal: signal.signal
+        signal: signal.signal,
+        inputs: signal.inputs
       }))
     };
 

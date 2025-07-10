@@ -9,12 +9,17 @@ import { BaseMessage } from "../types";
 import { Publisher } from "../Publisher";
 
 /**
- * MessageChunk message structure
+ * MessageChunk message type
  */
 export interface MessageChunk extends BaseMessage {
   __typename: "MessageChunk";
-  text: string;
-  index?: number; // Sequence index for proper ordering
+  component: {
+    type: "MessageChunk";
+    props: {
+      text: string;
+      index?: number;
+    };
+  };
 }
 
 /**
@@ -41,11 +46,16 @@ export class MessageChunkPublisher extends BasePublisher {
     const messageChunk: MessageChunk = {
       ...this.createBaseMessage(baseMessage),
       __typename: "MessageChunk",
-      text,
-      index,
+      component: {
+        type: "MessageChunk",
+        props: {
+          text,
+          index,
+        },
+      },
     };
 
-    await this.publish(messageChunk, options);
+    await this.publish(messageChunk as any, options);
   }
 }
 
