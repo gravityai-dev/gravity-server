@@ -23,6 +23,7 @@ export {
   QuestionsPublisher,
   FormPublisher,
   NodeExecutionPublisher,
+  JsonDataPublisher,
 } from "./messaging/publishers";
 
 // Export high-performance singleton getters
@@ -37,6 +38,7 @@ export {
   getQuestionsPublisher,
   getFormPublisher,
   getNodeExecutionPublisher,
+  getJsonDataPublisher,
 } from "./messaging/publishers";
 
 // Export publisher-specific types that don't conflict

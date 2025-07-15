@@ -21,7 +21,7 @@ export { MessageChunkPublisher, getMessageChunkPublisher } from "./messageChunk"
 export type { MessageChunk } from "./messageChunk";
 export { TextPublisher, getTextPublisher } from "./text";
 export type { Text } from "./text";
-export { JsonDataPublisher } from "./jsonData";
+export { JsonDataPublisher, getJsonDataPublisher } from "./jsonData";
 export type { JsonData } from "./jsonData";
 export { ActionSuggestionPublisher } from "./actionSuggestion";
 export type { ActionSuggestion } from "./actionSuggestion";
