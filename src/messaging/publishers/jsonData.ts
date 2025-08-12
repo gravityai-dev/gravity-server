@@ -14,10 +14,8 @@ import { Publisher } from "../Publisher";
 export interface JsonData extends BaseMessage {
   __typename: "JsonData";
   component: {
-    type: "JsonData";
-    props: {
-      data: any;
-    };
+    type: "jsonData";
+    props: any; // Accept any JSON structure
   };
 }
 
@@ -41,10 +39,8 @@ export class JsonDataPublisher extends BasePublisher {
       ...this.createBaseMessage(baseMessage),
       __typename: "JsonData",
       component: {
-        type: "JsonData",
-        props: {
-          data,
-        },
+        type: "jsonData",
+        props: data, // Pass through any JSON structure directly
       },
     };
 
