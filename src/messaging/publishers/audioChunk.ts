@@ -81,6 +81,20 @@ export class AudioChunkPublisher extends BasePublisher {
     baseMessage: Partial<BaseMessage>,
     options?: PublishOptions
   ): Promise<void> {
+    // Validate required fields to prevent malformed JSON
+    if (!audioData || typeof audioData !== 'string') {
+      throw new Error('AudioChunk: audioData must be a non-empty string');
+    }
+    if (!format || typeof format !== 'string') {
+      throw new Error('AudioChunk: format must be a non-empty string');
+    }
+    if (!textReference || typeof textReference !== 'string') {
+      throw new Error('AudioChunk: textReference must be a non-empty string');
+    }
+    if (!sourceType || typeof sourceType !== 'string') {
+      throw new Error('AudioChunk: sourceType must be a non-empty string');
+    }
+
     const audioChunk: AudioChunk = {
       ...this.createBaseMessage(baseMessage),
       __typename: "AudioChunk",
@@ -91,13 +105,21 @@ export class AudioChunkPublisher extends BasePublisher {
           format,
           textReference,
           sourceType,
-          duration,
-          index,
+          // Ensure undefined values are handled properly for JSON serialization
+          ...(duration !== undefined && { duration }),
+          ...(index !== undefined && { index }),
         },
       },
     };
 
-    await this.publish(audioChunk as any, options);
+    // Test JSON serialization before publishing to catch issues early
+    try {
+      JSON.stringify(audioChunk);
+    } catch (serializationError) {
+      throw new Error(`AudioChunk JSON serialization failed: ${serializationError}`);
+    }
+
+    await this.publish(audioChunk, options);
   }
 }
 

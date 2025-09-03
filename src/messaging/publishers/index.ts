@@ -31,7 +31,7 @@ export { ImageResponsePublisher } from "./imageResponse";
 export type { ImageResponse } from "./imageResponse";
 export { ToolOutputPublisher } from "./toolOutput";
 export type { ToolOutput } from "./toolOutput";
-export { AudioChunkPublisher, createAudioChunk } from "./audioChunk";
+export { AudioChunkPublisher, createAudioChunk, getAudioChunkPublisher } from "./audioChunk";
 export type { AudioChunk } from "./audioChunk";
 export { StatePublisher, getStatePublisher } from "./state";
 export type { StateMessage } from "./state";

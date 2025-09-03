@@ -1,6 +1,6 @@
 {
   "name": "@gravityai-dev/gravity-server",
-  "version": "0.2.92",
+  "version": "0.2.93",
   "description": "Integration SDK for the Gravity AI orchestration platform - Connect any AI platform in minutes",
   "private": false,
   "author": "Gravity AI Team",
@@ -41,7 +41,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "ioredis": "^5.3.2",
+    "ioredis": "^5.6.1",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

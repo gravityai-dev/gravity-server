@@ -39,6 +39,7 @@ export {
   getFormPublisher,
   getNodeExecutionPublisher,
   getJsonDataPublisher,
+  getAudioChunkPublisher,
 } from "./messaging/publishers";
 
 // Export publisher-specific types that don't conflict
