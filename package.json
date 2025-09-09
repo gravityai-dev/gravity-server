@@ -1,15 +1,14 @@
 {
   "name": "@gravityai-dev/gravity-server",
-  "version": "0.2.97",
+  "version": "0.2.99",
   "description": "Integration SDK for the Gravity AI orchestration platform - Connect any AI platform in minutes",
-  "private": false,
   "author": "Gravity AI Team",
   "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "publishConfig": {
-    "access": "public"
+    "access": "restricted"
   },
   "repository": {
     "type": "git",
