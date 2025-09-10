@@ -1,6 +1,6 @@
 {
   "name": "@gravityai-dev/gravity-server",
-  "version": "0.2.99",
+  "version": "0.2.101",
   "description": "Integration SDK for the Gravity AI orchestration platform - Connect any AI platform in minutes",
   "author": "Gravity AI Team",
   "license": "MIT",
@@ -8,7 +8,7 @@
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "publishConfig": {
-    "access": "restricted"
+    "access": "public"
   },
   "repository": {
     "type": "git",
@@ -34,7 +34,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsc",
     "prepublishOnly": "npm run build",
     "link": "npm run build && npm link",
     "test": "jest"
@@ -44,10 +44,8 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@types/ioredis": "^4.28.10",
-    "@types/node": "^20.17.30",
-    "@types/uuid": "^9.0.1",
-    "typescript": "^5.8.3",
-    "tsup": "^8.4.0"
+    "@types/node": "^24.3.1",
+    "@types/uuid": "^9.0.4",
+    "typescript": "^5.2.2"
   }
 }
