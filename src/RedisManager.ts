@@ -19,7 +19,9 @@ export interface RedisOptions {
   port: number;
   password?: string;
   username?: string;
+  token?: string;  // Redis ACL token for authentication
   db?: number;
+  tls?: boolean | any;  // TLS/SSL configuration
   // Add any other common Redis options here
 }
 
@@ -34,17 +36,36 @@ function getConnectionKey(options: RedisOptions): string {
  * Create a Redis configuration with sensible defaults
  */
 function createConfig(options: RedisOptions): any {
-  return {
+  const config: any = {
     host: options.host,
     port: options.port,
-    password: options.password,
-    username: options.username,
     db: options.db || 0,
     retryStrategy: (times: number) => Math.min(times * 50, 2000),
     maxRetriesPerRequest: 3,
     enableOfflineQueue: true,
     // Add other common options here
   };
+
+  // Handle authentication - token takes precedence over username/password
+  if (options.token) {
+    // For token authentication, use 'default' as username and token as password
+    config.username = 'default';
+    config.password = options.token;
+  } else if (options.username && options.password) {
+    config.username = options.username;
+    config.password = options.password;
+  } else if (options.password) {
+    // Legacy mode: password only (no username)
+    config.password = options.password;
+  }
+
+  // Handle TLS configuration
+  if (options.tls !== undefined) {
+    config.tls = options.tls === true ? {} : options.tls;
+  }
+
+
+  return config;
 }
 
 /**
@@ -53,23 +74,14 @@ function createConfig(options: RedisOptions): any {
  */
 export function getStandardConnection(options: RedisOptions): Redis {
   // Create a unique key for the connection pool based on connection parameters
-  const connectionKey = `${options.host}:${options.port}:${options.db || 0}:${options.username || 'default'}`;
+  const connectionKey = getConnectionKey(options);
   
   if (standardConnections.has(connectionKey)) {
     return standardConnections.get(connectionKey)!;
   }
 
-  // Create config object for ioredis
-  const config = {
-    host: options.host,
-    port: options.port,
-    username: options.username,
-    password: options.password,
-    db: options.db || 0,
-    retryStrategy: (times: number) => Math.min(times * 50, 2000),
-    maxRetriesPerRequest: 3,
-    enableOfflineQueue: true,
-  };
+  // Use the centralized config creation
+  const config = createConfig(options);
 
   const client = new Redis(config);
   standardConnections.set(connectionKey, client);
@@ -102,8 +114,9 @@ export function getRedisOptions(): RedisOptions {
   return {
     host: process.env.REDIS_HOST!,
     port: parseInt(process.env.REDIS_PORT!, 10),
-    username: process.env.REDIS_USERNAME!,
-    password: process.env.REDIS_PASSWORD!,
+    username: process.env.REDIS_USERNAME,
+    password: process.env.REDIS_PASSWORD,
+    token: process.env.REDIS_TOKEN,
   };
 }
 
@@ -115,13 +128,15 @@ export function getOptionsFromConfig(
   host: string,
   port: number,
   username?: string | null,
-  password?: string | null
+  password?: string | null,
+  token?: string | null
 ): RedisOptions {
   return {
     host,
     port,
     username: username || undefined,
     password: password || undefined,
+    token: token || undefined,
   };
 }
 

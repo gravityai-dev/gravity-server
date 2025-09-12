@@ -44,9 +44,14 @@ export class Publisher {
     password: string | undefined,
     providerId: string,
     username?: string,
-    db?: number
+    db?: number,
+    token?: string,
+    tls?: boolean
   ): Publisher {
-    const redisOptions = getOptionsFromConfig(host, port, username, password);
+    const redisOptions = getOptionsFromConfig(host, port, username, password, token);
+    if (tls !== undefined) {
+      (redisOptions as any).tls = tls;
+    }
 
     return new Publisher(redisOptions, providerId);
   }
