@@ -113,14 +113,16 @@ export function getStatePublisher(
   password?: string, 
   providerId?: string, 
   username?: string, 
-  db?: number
+  db?: number,
+  token?: string,
+  tls?: boolean
 ): StatePublisher {
   if (!statePublisherInstance) {
-    if (!host || !port || password === undefined || !providerId) {
-      throw new Error('StatePublisher requires host, port, password, and providerId on first call');
+    if (!host || !port || (password === undefined && !token) || !providerId) {
+      throw new Error('StatePublisher requires host, port, password/token, and providerId on first call');
     }
     
-    const publisher = Publisher.fromConfig(host, port, password, providerId, username, db);
+    const publisher = Publisher.fromConfig(host, port, password, providerId, username, db, token, tls);
     statePublisherInstance = new StatePublisher(
       publisher.getRedisConnection(),
       publisher.getProviderId()

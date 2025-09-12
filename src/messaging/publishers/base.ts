@@ -11,6 +11,7 @@
 import Redis from "ioredis";
 import { v4 as uuid } from "uuid";
 import { GravityMessage, MessageType, AI_RESULT_CHANNEL, SYSTEM_CHANNEL, BaseMessage } from "../../types";
+import { Publisher } from "../Publisher";
 
 /**
  * Options for publishing messages
@@ -31,6 +32,22 @@ import { GravityMessage, MessageType, AI_RESULT_CHANNEL, SYSTEM_CHANNEL, BaseMes
 export interface PublishOptions {
   channel?: string;
   useStream?: boolean;
+}
+
+/**
+ * Helper function to create a Publisher with proper authentication
+ */
+export function createPublisherWithAuth(
+  host: string,
+  port: number,
+  password: string | undefined,
+  providerId: string,
+  username?: string,
+  db?: number,
+  token?: string,
+  tls?: boolean
+): Publisher {
+  return Publisher.fromConfig(host, port, password, providerId, username, db, token, tls);
 }
 
 /**

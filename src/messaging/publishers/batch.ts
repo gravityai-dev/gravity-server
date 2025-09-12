@@ -102,14 +102,16 @@ export function getBatchPublisher(
   password?: string, 
   providerId?: string, 
   username?: string, 
-  db?: number
+  db?: number,
+  token?: string,
+  tls?: boolean
 ): BatchPublisher {
   if (!batchPublisherInstance) {
-    if (!host || !port || password === undefined || !providerId) {
-      throw new Error('BatchPublisher requires host, port, password, and providerId on first call');
+    if (!host || !port || (password === undefined && !token) || !providerId) {
+      throw new Error('BatchPublisher requires host, port, password/token, and providerId on first call');
     }
     
-    const publisher = Publisher.fromConfig(host, port, password, providerId, username, db);
+    const publisher = Publisher.fromConfig(host, port, password, providerId, username, db, token, tls);
     batchPublisherInstance = new BatchPublisher(
       publisher.getRedisConnection(),
       publisher.getProviderId()

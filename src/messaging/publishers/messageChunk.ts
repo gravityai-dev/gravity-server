@@ -75,15 +75,17 @@ let messageChunkPublisherInstance: MessageChunkPublisher | null = null;
  * @returns Singleton MessageChunkPublisher instance
  */
 export function getMessageChunkPublisher(
-  host?: string,
-  port?: number,
-  password?: string,
-  providerId?: string,
-  username?: string,
-  db?: number
+  host?: string, 
+  port?: number, 
+  password?: string, 
+  providerId?: string, 
+  username?: string, 
+  db?: number,
+  token?: string,
+  tls?: boolean
 ): MessageChunkPublisher {
   if (!messageChunkPublisherInstance) {
-    if (!host || !port || password === undefined || !providerId) {
+    if (!host || !port || (password === undefined && !token) || !providerId) {
       console.error("[ERROR] MessageChunkPublisher missing required parameters:", {
         hasHost: !!host,
         hasPort: !!port,
@@ -99,7 +101,7 @@ export function getMessageChunkPublisher(
       providerId,
     });
 
-    const publisher = Publisher.fromConfig(host, port, password, providerId, username, db);
+    const publisher = Publisher.fromConfig(host, port, password, providerId, username, db, token, tls);
     messageChunkPublisherInstance = new MessageChunkPublisher(
       publisher.getRedisConnection(),
       publisher.getProviderId()

@@ -115,14 +115,16 @@ export function getFormPublisher(
   password?: string, 
   providerId?: string, 
   username?: string, 
-  db?: number
+  db?: number,
+  token?: string,
+  tls?: boolean
 ): FormPublisher {
   if (!formPublisherInstance) {
-    if (!host || !port || password === undefined || !providerId) {
-      throw new Error('FormPublisher requires host, port, password, and providerId on first call');
+    if (!host || !port || (password === undefined && !token) || !providerId) {
+      throw new Error('FormPublisher requires host, port, password/token, and providerId on first call');
     }
     
-    const publisher = Publisher.fromConfig(host, port, password, providerId, username, db);
+    const publisher = Publisher.fromConfig(host, port, password, providerId, username, db, token, tls);
     formPublisherInstance = new FormPublisher(
       publisher.getRedisConnection(),
       publisher.getProviderId()

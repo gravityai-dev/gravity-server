@@ -63,14 +63,16 @@ export function getQuestionsPublisher(
   password?: string, 
   providerId?: string, 
   username?: string, 
-  db?: number
+  db?: number,
+  token?: string,
+  tls?: boolean
 ): QuestionsPublisher {
   if (!questionsPublisherInstance) {
-    if (!host || !port || password === undefined || !providerId) {
-      throw new Error('QuestionsPublisher requires host, port, password, and providerId on first call');
+    if (!host || !port || (password === undefined && !token) || !providerId) {
+      throw new Error('QuestionsPublisher requires host, port, password/token, and providerId on first call');
     }
     
-    const publisher = Publisher.fromConfig(host, port, password, providerId, username, db);
+    const publisher = Publisher.fromConfig(host, port, password, providerId, username, db, token, tls);
     questionsPublisherInstance = new QuestionsPublisher(
       publisher.getRedisConnection(),
       publisher.getProviderId()

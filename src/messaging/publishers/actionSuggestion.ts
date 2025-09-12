@@ -77,14 +77,16 @@ export function getActionSuggestionPublisher(
   password?: string, 
   providerId?: string, 
   username?: string, 
-  db?: number
+  db?: number,
+  token?: string,
+  tls?: boolean
 ): ActionSuggestionPublisher {
   if (!actionSuggestionPublisherInstance) {
-    if (!host || !port || password === undefined || !providerId) {
-      throw new Error('ActionSuggestionPublisher requires host, port, password, and providerId on first call');
+    if (!host || !port || (password === undefined && !token) || !providerId) {
+      throw new Error('ActionSuggestionPublisher requires host, port, password/token, and providerId on first call');
     }
     
-    const publisher = Publisher.fromConfig(host, port, password, providerId, username, db);
+    const publisher = Publisher.fromConfig(host, port, password, providerId, username, db, token, tls);
     actionSuggestionPublisherInstance = new ActionSuggestionPublisher(
       publisher.getRedisConnection(),
       publisher.getProviderId()

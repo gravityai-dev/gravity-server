@@ -144,14 +144,16 @@ export function getAudioChunkPublisher(
   password?: string, 
   providerId?: string, 
   username?: string, 
-  db?: number
+  db?: number,
+  token?: string,
+  tls?: boolean
 ): AudioChunkPublisher {
   if (!audioChunkPublisherInstance) {
-    if (!host || !port || password === undefined || !providerId) {
-      throw new Error('AudioChunkPublisher requires host, port, password, and providerId on first call');
+    if (!host || !port || (password === undefined && !token) || !providerId) {
+      throw new Error('AudioChunkPublisher requires host, port, password/token, and providerId on first call');
     }
     
-    const publisher = Publisher.fromConfig(host, port, password, providerId, username, db);
+    const publisher = Publisher.fromConfig(host, port, password, providerId, username, db, token, tls);
     audioChunkPublisherInstance = new AudioChunkPublisher(
       publisher.getRedisConnection(),
       publisher.getProviderId()
