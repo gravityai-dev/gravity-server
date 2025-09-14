@@ -248,7 +248,8 @@ export abstract class BasePublisher {
    */
   private async publishToStream(channel: string, message: any): Promise<string> {
     // Use the unified workflow stream for all messages
-    const streamKey = "workflow:events:stream";
+    const REDIS_NAMESPACE = process.env.REDIS_NAMESPACE || process.env.NODE_ENV || "local";
+    const streamKey = `${REDIS_NAMESPACE}:workflow:events:stream`;
     
     try {
       // Extract conversationId for efficient filtering
