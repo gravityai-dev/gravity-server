@@ -1,6 +1,6 @@
 {
   "name": "@gravityai-dev/gravity-server",
-  "version": "0.2.119",
+  "version": "0.2.120",
   "description": "Integration SDK for the Gravity AI orchestration platform - Connect any AI platform in minutes",
   "author": "Gravity AI Team",
   "license": "MIT",
